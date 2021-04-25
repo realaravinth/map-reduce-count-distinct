@@ -12,6 +12,7 @@ mod parallel;
 mod serial;
 mod utils;
 
+use crate::utils::*;
 use config::Method;
 
 //pub const TEXT: &str = include_str!("../res/large.txt");
@@ -23,12 +24,19 @@ lazy_static! {
     pub static ref CONFIG: config::Config = cli::cli();
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     initialize(&TEXT);
+    initialize(&CONFIG);
+    initialize(&LOG);
+    initialize(&NUM_CPU);
 
+    let start = time::Instant::now();
     match CONFIG.method {
         Method::Serial => serial::runner(),
 
         Method::Parallel => parallel::runner(),
     }
+
+    print_time(start);
 }

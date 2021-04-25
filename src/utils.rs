@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::Path;
+use std::time;
 
 use slog::info;
 use slog::o;
@@ -9,9 +10,9 @@ use slog::Logger;
 use crate::*;
 
 pub fn prepare_content() -> String {
-    const UNWANTED_CHAR: [char; 26] = [
-        ',', ':', '?', '!', ';', '\r', '\'', '.', '[', ']', '(', ')', '^', '*', '$', '%', '#', '&',
-        '{', '}', '`', '~', '\n', '\t', '—', '_',
+    const UNWANTED_CHAR: [char; 23] = [
+        ',', ':', '?', '!', ';', '.', '[', ']', '(', ')', '^', '*', '$', '%', '#', '&', '{', '}',
+        '`', '~', '\t', '—', '_',
     ];
 
     const FILE: &str = "./res/large.txt";
@@ -54,4 +55,11 @@ pub fn int_logging() -> Logger {
     let drain = slog_term::CompactFormat::new(decorator).build().fuse();
     let async_drain = slog_async::Async::new(drain).build().fuse();
     slog::Logger::root(async_drain, o!("version" => "0.1.0"))
+}
+
+pub fn print_time(instant: time::Instant) {
+    println!("Time elapsed:");
+    println!("  {} micro seconds", instant.elapsed().as_micros());
+    println!("  {} nano seconds", instant.elapsed().as_nanos());
+    println!("  {} seconds", instant.elapsed().as_secs_f64());
 }
