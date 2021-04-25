@@ -55,7 +55,3 @@ pub fn int_logging() -> Logger {
     let async_drain = slog_async::Async::new(drain).build().fuse();
     slog::Logger::root(async_drain, o!("version" => "0.1.0"))
 }
-
-pub fn section_break() {
-    println!("==================================");
-}

@@ -2,6 +2,10 @@
 name = "map-reduce"
 version = "0.1.0"
 edition = "2018"
+description = "word count using map-reduce algorithm"
+repository = "https://github.com/realaravinth/map-reduce-count-distinct"
+license = "AGPLv3 or later version"
+authors = ["Aravinth Manivannan <realaravinth@batsense.net>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,3 +17,4 @@ slog = "2.7.0"
 slog-async = "2.6.0"
 slog-term = "2.8.0"
 num_cpus = "1.13.0"
+clap = "2.33.3"

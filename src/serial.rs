@@ -1,7 +1,7 @@
 use crate::map::Map;
 use crate::*;
 
-pub fn serial() {
+fn serial() {
     let mut map = Map::new();
 
     let iter = TEXT.split(" ");
@@ -15,7 +15,9 @@ pub fn serial() {
         }
     });
 
-    //map.display();
+    if CONFIG.display {
+        map.display();
+    }
 
     println!("Time elapsed:");
     println!("  {} micro seconds", start.elapsed().as_micros());
@@ -23,4 +25,9 @@ pub fn serial() {
     println!("  {} seconds", start.elapsed().as_secs_f64());
     println!("Words counted: {}", words);
     println!("Number of unique words: {}", map.map.len());
+}
+
+pub fn runner() {
+    info!(LOG, "Counting words searially");
+    serial();
 }

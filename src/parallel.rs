@@ -64,6 +64,10 @@ impl ParallelRunner {
         }
 
         children.drain(0..).for_each(|child| child.join().unwrap());
+
+        if CONFIG.display {
+            map.display();
+        }
     }
 
     #[inline]
@@ -72,4 +76,15 @@ impl ParallelRunner {
             iter.next();
         }
     }
+}
+
+pub fn runner() {
+    let parallel = parallel::ParallelRunner::new();
+    let start = time::Instant::now();
+    parallel.run();
+
+    println!("Time elapsed:");
+    println!("  {} micro seconds", start.elapsed().as_micros());
+    println!("  {} nano seconds", start.elapsed().as_nanos());
+    println!("  {} seconds", start.elapsed().as_secs_f64());
 }
