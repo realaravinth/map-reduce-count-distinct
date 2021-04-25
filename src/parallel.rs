@@ -1,64 +1,75 @@
+use std::sync::mpsc::channel;
 use std::thread;
+
+use slog::info;
 
 use crate::map::Map;
 use crate::*;
 
 #[derive(Debug, Clone)]
 pub struct ParallelRunner {
-    pub each_worker: Vec<(usize, usize)>,
+    pub quota: usize,
 }
 
 impl ParallelRunner {
     pub fn new() -> ParallelRunner {
-        let len = TEXT.len();
-        let mut each_worker = Vec::default();
-        let quota = len / *NUM_CPU;
-
-        for i in 0..*NUM_CPU {
-            let start = i * quota;
-            let end;
-            if i + 1 == *NUM_CPU {
-                end = (i + 1) * quota;
-            } else {
-                end = ((i + 1) * quota) + 1;
-            }
-            each_worker[i] = (start, end);
-        }
-
-        ParallelRunner { each_worker }
+        let quota = TEXT.split(' ').count() / *NUM_CPU;
+        info!(LOG, "Words per thread: {}", quota);
+        ParallelRunner { quota }
     }
 
     pub fn run(&self) {
         let mut children = Vec::default();
+        let mut word_iter = TEXT.split(' ');
+        let mut map = Map::new();
 
-        self.each_worker.iter().for_each(|(start, end)| {
-            let start = start.clone();
-            let end = end.clone();
-            let mut line_iter = TEXT.lines();
+        let (tx, rx) = channel();
+
+        for i in 0..*NUM_CPU {
+            Self::advance_by_quota(self.quota, &mut word_iter);
+
+            let quota = self.quota;
+
+            let tx = tx.clone();
 
             let child = thread::spawn(move || {
                 let mut map = Map::new();
-                let mut counter = start;
-                line_iter.advance_by(start).unwrap();
-                for line in line_iter {
-                    if counter == end {
-                        break;
-                    }
 
-                    let iter = line.split(" ");
-                    iter.for_each(|word| {
-                        if !word.is_empty() {
-                            map.insert(word);
-                        }
-                    });
-
-                    counter += 1;
+                let mut word_iter = TEXT.split(' ');
+                for _ in 0..(quota * i) {
+                    word_iter.next();
                 }
+
+                for _ in 0..quota {
+                    let word = word_iter.next().unwrap();
+                    if !word.is_empty() {
+                        map.insert(word);
+                    }
+                }
+
+                tx.send(map).unwrap();
+                drop(tx);
             });
 
             children.push(child);
-        });
+        }
+        drop(tx);
+
+        loop {
+            if let Ok(count) = rx.recv() {
+                map.map = Map::merge(map.map, count.map);
+            } else {
+                break;
+            }
+        }
 
         children.drain(0..).for_each(|child| child.join().unwrap());
+    }
+
+    #[inline]
+    fn advance_by_quota(quota: usize, iter: &mut std::str::Split<'_, char>) {
+        for _ in 0..quota {
+            iter.next();
+        }
     }
 }

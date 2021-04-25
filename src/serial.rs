@@ -15,7 +15,7 @@ pub fn serial() {
         }
     });
 
-    map.display();
+    //map.display();
 
     println!("Time elapsed:");
     println!("  {} micro seconds", start.elapsed().as_micros());

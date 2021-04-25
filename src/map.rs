@@ -2,13 +2,14 @@ use hashbrown::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct Map<'a> {
-    pub map: HashMap<&'a str, usize>,
+    //pub map: HashMap<&'a str, usize>,
+    pub map: WordCount<'a>,
 }
 
 impl<'a> Map<'a> {
     pub fn new() -> Self {
         Map {
-            map: HashMap::new(),
+            map: WordCount::new(),
         }
     }
 
@@ -24,4 +25,10 @@ impl<'a> Map<'a> {
     pub fn display(&self) {
         println!("{:#?}", self.map);
     }
+
+    pub fn merge(master: WordCount<'a>, hash: WordCount<'a>) -> WordCount<'a> {
+        master.into_iter().chain(hash).collect()
+    }
 }
+
+type WordCount<'a> = HashMap<&'a str, usize>;

@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::Path;
 
 use slog::info;
 use slog::o;
@@ -13,30 +14,39 @@ pub fn prepare_content() -> String {
         '{', '}', '`', '~', '\n', '\t', '—', '_',
     ];
 
-    info!(LOG, "Reading File");
-    let text = fs::read_to_string("./res/large.txt").unwrap();
-    info!(LOG, "Processing File");
+    const FILE: &str = "./res/large.txt";
+    const PROCESSED_FILE: &str = "./res/large-processed.txt";
 
-    let start = time::Instant::now();
+    if Path::new(PROCESSED_FILE).exists() {
+        fs::read_to_string(PROCESSED_FILE).unwrap()
+    } else {
+        info!(LOG, "Reading File");
+        let text = fs::read_to_string(FILE).unwrap();
+        info!(LOG, "Processing File");
 
-    let processed_text: String = text
-        .chars()
-        .map(|character| {
-            if UNWANTED_CHAR.contains(&character) {
-                ' '
-            } else {
-                character
-            }
-        })
-        .collect();
+        let start = time::Instant::now();
 
-    info!(
-        LOG,
-        "Finished processing in {} seconds",
-        start.elapsed().as_secs_f64()
-    );
+        let processed_text: String = text
+            .chars()
+            .map(|character| {
+                if UNWANTED_CHAR.contains(&character) {
+                    ' '
+                } else {
+                    character
+                }
+            })
+            .collect();
 
-    processed_text
+        info!(
+            LOG,
+            "Finished processing in {} seconds",
+            start.elapsed().as_secs_f64()
+        );
+
+        fs::write(PROCESSED_FILE, &processed_text).unwrap();
+
+        processed_text
+    }
 }
 
 pub fn int_logging() -> Logger {
@@ -44,4 +54,8 @@ pub fn int_logging() -> Logger {
     let drain = slog_term::CompactFormat::new(decorator).build().fuse();
     let async_drain = slog_async::Async::new(drain).build().fuse();
     slog::Logger::root(async_drain, o!("version" => "0.1.0"))
+}
+
+pub fn section_break() {
+    println!("==================================");
 }
