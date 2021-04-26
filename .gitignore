@@ -1,2 +1,5 @@
 /target
 res/
+perf.data*
+massif.out*
+flamegraph.svg

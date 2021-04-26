@@ -1,4 +1,5 @@
 use crate::map::Map;
+use crate::utils::*;
 use crate::*;
 
 fn serial() {
@@ -20,6 +21,8 @@ fn serial() {
 }
 
 pub fn runner() {
+    let start = time::Instant::now();
     info!(LOG, "Counting words searially");
     serial();
+    print_time(start);
 }
