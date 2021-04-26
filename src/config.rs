@@ -1,6 +1,7 @@
 pub enum Method {
     Parallel,
     Serial,
+    ParallelThreadPool,
 }
 
 pub struct Config {

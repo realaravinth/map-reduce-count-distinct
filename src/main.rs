@@ -9,6 +9,7 @@ mod cli;
 mod config;
 mod map;
 mod parallel;
+mod pool;
 mod serial;
 mod threads;
 mod utils;
@@ -32,7 +33,7 @@ fn main() {
 
     match CONFIG.method {
         Method::Serial => serial::runner(),
-
         Method::Parallel => parallel::runner(),
+        Method::ParallelThreadPool => pool::runner(),
     }
 }

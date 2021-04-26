@@ -16,6 +16,13 @@ pub fn cli() -> Config {
                 .takes_value(false),
         )
         .arg(
+            Arg::with_name("parallel_threadpool")
+                .short("-t")
+                .long("--threadpool")
+                .help("Count parallelly using threadpool")
+                .required(false),
+        )
+        .arg(
             Arg::with_name("parallel")
                 .short("-p")
                 .long("--parallel")
@@ -43,6 +50,8 @@ pub fn cli() -> Config {
             Method::Serial
         } else if matches.is_present("parallel") {
             Method::Parallel
+        } else if matches.is_present("parallel_threadpool") {
+            Method::ParallelThreadPool
         } else {
             panic!("Set method")
         }
