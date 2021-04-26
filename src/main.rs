@@ -18,6 +18,9 @@ use config::Method;
 
 //pub const TEXT: &str = include_str!("../res/large.txt");
 
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 lazy_static! {
     pub static ref TEXT: String = utils::prepare_content();
     pub static ref LOG: Logger = utils::int_logging();
