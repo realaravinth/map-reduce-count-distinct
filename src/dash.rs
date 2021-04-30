@@ -1,12 +1,40 @@
-use std::sync::mpsc::channel;
 use std::time;
 
+use dashmap::DashMap as HashMap;
 use slog::info;
 use threadpool::ThreadPool;
 
-use crate::map::Map;
 use crate::utils::*;
 use crate::*;
+
+#[derive(Debug, Clone)]
+pub struct Map<'a> {
+    //pub map: HashMap<&'a str, usize>,
+    pub map: WordCount<'a>,
+}
+
+impl<'a> Map<'a> {
+    pub fn new() -> Self {
+        Map {
+            map: WordCount::new(),
+        }
+    }
+
+    pub fn insert(&mut self, word: &'a str) {
+        if self.map.contains_key(word) {
+            let mut val = self.map.get_mut(word).unwrap();
+            *val += 1;
+        } else {
+            self.map.insert(word, 1);
+        }
+    }
+
+    pub fn display(&self) {
+        println!("{:#?}", self.map);
+    }
+}
+
+type WordCount<'a> = HashMap<&'a str, usize>;
 
 pub fn runner() {
     let parallel = ParallelRunner::new();
@@ -55,9 +83,12 @@ impl ParallelRunner {
     }
 
     pub fn count_pool(&self) {
-        let mut map = Map::new();
+        unimplemented!(
+            "threads aren't sharing hashmap in this version, shoud change that. Use locks perhaps"
+        );
+        let map = Map::new();
 
-        let (tx, rx) = channel();
+        //        let (tx, rx) = channel();
 
         for i in 0..*NUM_CPU + 1 {
             let start;
@@ -76,38 +107,36 @@ impl ParallelRunner {
                 sub = &TEXT[start..end];
             }
 
-            let tx = tx.clone();
+            //           let tx = tx.clone();
 
+            let mut map = map.clone();
             self.pool.execute(move || {
-                let mut map = Map::new();
-
                 let word_iter = sub.split(' ');
 
-                let mut count = 0;
+                //             let mut count = 0;
 
                 for word in word_iter {
                     if !word.is_empty() {
                         map.insert(word);
                     }
-                    count += 1;
+                    //                    count += 1;
                 }
 
-                tx.send((count, map)).unwrap();
                 //                   drop(tx);
             });
         }
 
         //let mut count = 0;
-        let mut iter = 0;
+        //      let mut iter = 0;
 
-        while iter < *NUM_CPU + 1 {
-            if let Ok((_, wordmap)) = rx.recv() {
-                map.map = Map::merge(map.map, wordmap.map);
-                iter += 1;
-            } else {
-                break;
-            }
-        }
+        //        while iter < *NUM_CPU + 1 {
+        //            if let Ok((_, wordmap)) = rx.recv() {
+        //                map.map = Map::merge(map.map, wordmap.map);
+        //                iter += 1;
+        //            } else {
+        //                break;
+        //            }
+        //        }
 
         //        info!(LOG, "total words counted: {}", count);
 

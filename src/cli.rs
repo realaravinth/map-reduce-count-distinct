@@ -23,6 +23,13 @@ pub fn cli() -> Config {
                 .required(false),
         )
         .arg(
+            Arg::with_name("dash")
+                .short("-d")
+                .long("--dashmap")
+                .help("Count parallelly")
+                .required(false),
+        )
+        .arg(
             Arg::with_name("parallel")
                 .short("-p")
                 .long("--parallel")
@@ -30,16 +37,16 @@ pub fn cli() -> Config {
                 .required(false),
         )
         .arg(
-            Arg::with_name("display")
-                .short("-d")
-                .long("--display")
+            Arg::with_name("verbose")
+                .short("-v")
+                .long("--verbose")
                 .help("Display word count mapping")
                 .required(false),
         )
         .get_matches();
 
     let display;
-    if matches.is_present("display") {
+    if matches.is_present("verbose") {
         display = true;
     } else {
         display = false;
@@ -52,6 +59,8 @@ pub fn cli() -> Config {
             Method::Parallel
         } else if matches.is_present("parallel_threadpool") {
             Method::ParallelThreadPool
+        } else if matches.is_present("dash") {
+            Method::DashMap
         } else {
             panic!("Set method")
         }
